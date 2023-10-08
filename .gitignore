@@ -6,6 +6,9 @@ build-vcpkg/
 install-vcpkg/
 wheelhouse/
 
+# Doxygen
+html
+
 # Microsoft Visual Studio 2022 
 vcpkg_installed
 
