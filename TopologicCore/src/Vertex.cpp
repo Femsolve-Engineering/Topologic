@@ -42,11 +42,6 @@ namespace TopologicCore
 		RegisterFactory(GetClassGUID(), std::make_shared<VertexFactory>());
 	}
 
-	Vertex::~Vertex()
-	{
-
-	}
-
 	Vertex::Ptr Vertex::ByPoint(Handle(Geom_Point) pOcctPoint)
 	{
 		TopoDS_Vertex occtVertex = BRepBuilderAPI_MakeVertex(pOcctPoint->Pnt());
@@ -218,17 +213,23 @@ namespace TopologicCore
 		}
 	}
 
-	void Vertex::Geometry(std::list<Handle(Geom_Geometry)>& rOcctGeometries) const
+	std::shared_ptr<Vertex> Vertex::CenterOfMass() const
+	{
+		TopoDS_Vertex occtCenterOfMass = CenterOfMass(GetOcctVertex());
+		return std::dynamic_pointer_cast<Vertex>(Topology::ByOcctShape(occtCenterOfMass));
+	}
+
+	PROCESSED void Vertex::Geometry(std::list<Handle(Geom_Geometry)>& rOcctGeometries) const
 	{
 		rOcctGeometries.push_back(Point());
 	}
 
-	TopoDS_Shape& Vertex::GetOcctShape()
+	PROCESSED TopoDS_Shape& Vertex::GetOcctShape()
 	{
 		return GetOcctVertex();
 	}
 
-	void Vertex::SetOcctShape(const TopoDS_Shape & rkOcctShape)
+	PROCESSED void Vertex::SetOcctShape(const TopoDS_Shape & rkOcctShape)
 	{
 		try {
 			SetOcctVertex(TopoDS::Vertex(rkOcctShape));
@@ -239,12 +240,12 @@ namespace TopologicCore
 		}
 	}
 
-	const TopoDS_Shape& Vertex::GetOcctShape() const
+	PROCESSED const TopoDS_Shape& Vertex::GetOcctShape() const
 	{
 		return GetOcctVertex();
 	}
 
-	TopoDS_Vertex& Vertex::GetOcctVertex()
+	PROCESSED TopoDS_Vertex& Vertex::GetOcctVertex()
 	{
 		assert(!m_occtVertex.IsNull() && "Vertex::m_occtVertex is null.");
 		if (m_occtVertex.IsNull())
@@ -255,7 +256,7 @@ namespace TopologicCore
 		return m_occtVertex;
 	}
 
-	void Vertex::SetOcctVertex(const TopoDS_Vertex & rkOcctVertex)
+	PROCESSED void Vertex::SetOcctVertex(const TopoDS_Vertex & rkOcctVertex)
 	{
 		m_occtVertex = rkOcctVertex;
 	}
@@ -271,7 +272,7 @@ namespace TopologicCore
 		return m_occtVertex;
 	}
 
-	Handle(Geom_Point) Vertex::Point() const
+	PROCESSED Handle(Geom_Point) Vertex::Point() const
 	{
 		return new Geom_CartesianPoint(BRep_Tool::Pnt(GetOcctVertex()));
 	}
@@ -294,19 +295,13 @@ namespace TopologicCore
 		return pOcctPoint->Z();
 	}
 
-	std::tuple<double, double, double> Vertex::Coordinates() const
+	PROCESSED std::tuple<double, double, double> Vertex::Coordinates() const
 	{
 		Handle(Geom_Point) pOcctPoint = Point();
 		return std::tuple<double, double, double>(pOcctPoint->X(), pOcctPoint->Y(), pOcctPoint->Z());
 	}
-
-	std::shared_ptr<Vertex> Vertex::CenterOfMass() const
-	{
-		TopoDS_Vertex occtCenterOfMass = CenterOfMass(GetOcctVertex());
-		return std::dynamic_pointer_cast<Vertex>(Topology::ByOcctShape(occtCenterOfMass));
-	}
 	
-	TopoDS_Vertex Vertex::CenterOfMass(const TopoDS_Vertex & rkOcctVertex)
+	PROCESSED TopoDS_Vertex Vertex::CenterOfMass(const TopoDS_Vertex & rkOcctVertex)
 	{
 		TopoDS_Vertex occtCenterOfMass = BRepBuilderAPI_MakeVertex(BRep_Tool::Pnt(rkOcctVertex));
 		TopoDS_Vertex occtFixedCenterOfMass = TopoDS::Vertex(Topology::FixShape(occtCenterOfMass));
@@ -316,5 +311,10 @@ namespace TopologicCore
 	PROCESSED std::string Vertex::GetTypeAsString() const
 	{
 		return std::string("Vertex");
+	}
+
+	PROCESSED Vertex::~Vertex()
+	{
+
 	}
 }
