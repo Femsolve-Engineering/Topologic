@@ -30,6 +30,9 @@
 	#endif
 #endif
 
+#if _DEBUG
+#define PROCESSED
+#endif
 
 namespace TopologicCore {
 	enum TopologyType
