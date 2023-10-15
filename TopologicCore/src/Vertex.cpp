@@ -35,14 +35,14 @@
 
 namespace TopologicCore
 {
-	Vertex::Vertex(const TopoDS_Vertex& rkOcctVertex, const std::string& rkGuid)
+	PROCESSED Vertex::Vertex(const TopoDS_Vertex& rkOcctVertex, const std::string& rkGuid)
 		: Topology(0, rkOcctVertex, rkGuid.compare("") == 0 ? GetClassGUID() : rkGuid)
 		, m_occtVertex(rkOcctVertex)
 	{
 		RegisterFactory(GetClassGUID(), std::make_shared<VertexFactory>());
 	}
 
-	Vertex::Ptr Vertex::ByPoint(Handle(Geom_Point) pOcctPoint)
+	PROCESSED Vertex::Ptr Vertex::ByPoint(Handle(Geom_Point) pOcctPoint)
 	{
 		TopoDS_Vertex occtVertex = BRepBuilderAPI_MakeVertex(pOcctPoint->Pnt());
 		TopoDS_Vertex occtFixedVertex = TopoDS::Vertex(Topology::FixShape(occtVertex));
@@ -51,7 +51,7 @@ namespace TopologicCore
 		return pVertex;
 	}
 
-	Vertex::Ptr Vertex::ByCoordinates(const double kX, const double kY, const double kZ)
+	PROCESSED Vertex::Ptr Vertex::ByCoordinates(const double kX, const double kY, const double kZ)
 	{
 		TopoDS_Vertex occtVertex = BRepBuilderAPI_MakeVertex(gp_Pnt(kX, kY, kZ));
 		TopoDS_Vertex occtFixedVertex = TopoDS::Vertex(Topology::FixShape(occtVertex));
@@ -60,7 +60,7 @@ namespace TopologicCore
 		return pVertex;
 	}
 
-	void Vertex::Edges(const Topology::Ptr& kpHostTopology, std::list<Edge::Ptr>& rEdges) const
+	PROCESSED void Vertex::Edges(const Topology::Ptr& kpHostTopology, std::list<Edge::Ptr>& rEdges) const
 	{
 		if(kpHostTopology)
 		{
@@ -72,7 +72,7 @@ namespace TopologicCore
 		}
 	}
 
-	bool Vertex::IsManifold(const Topology::Ptr& kpHostTopology) const
+	PROCESSED bool Vertex::IsManifold(const Topology::Ptr& kpHostTopology) const
 	{
 		// For now, in the context of an Edge, a Vertex is considered always manifold.
 		// TODO: Vertex is considered manifold if it is the start or end vertex.
@@ -177,7 +177,8 @@ namespace TopologicCore
 		}
 		return true;
 	}
-	void Vertex::AdjacentVertices(const TopologicCore::Topology::Ptr& kpHostTopology, std::list<Vertex::Ptr>& rAdjacentVertices) const
+	
+	PROCESSED void Vertex::AdjacentVertices(const TopologicCore::Topology::Ptr& kpHostTopology, std::list<Vertex::Ptr>& rAdjacentVertices) const
 	{
 		// Find the constituent edges
 		TopTools_MapOfShape occtAdjacentVertices;
@@ -213,7 +214,7 @@ namespace TopologicCore
 		}
 	}
 
-	std::shared_ptr<Vertex> Vertex::CenterOfMass() const
+	PROCESSED std::shared_ptr<Vertex> Vertex::CenterOfMass() const
 	{
 		TopoDS_Vertex occtCenterOfMass = CenterOfMass(GetOcctVertex());
 		return std::dynamic_pointer_cast<Vertex>(Topology::ByOcctShape(occtCenterOfMass));

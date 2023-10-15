@@ -3543,7 +3543,7 @@ namespace TopologicCore
 		}
 	}
 
-	const std::string Topology::GetInstanceGUID() const
+	PROCESSED const std::string Topology::GetInstanceGUID() const
 	{
 		return GetInstanceGUID(GetOcctShape());
 	}
@@ -3553,7 +3553,7 @@ namespace TopologicCore
 		InstanceGUIDManager::GetInstance().Add(rkOcctShape, rkGuid);
 	}
 
-	const std::string Topology::GetInstanceGUID(const TopoDS_Shape & rkOcctShape)
+	PROCESSED const std::string Topology::GetInstanceGUID(const TopoDS_Shape & rkOcctShape)
 	{
 		std::string guid;
 		bool value = InstanceGUIDManager::GetInstance().Find(rkOcctShape, guid);
