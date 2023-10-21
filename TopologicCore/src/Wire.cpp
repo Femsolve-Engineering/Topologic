@@ -42,6 +42,13 @@
 
 namespace TopologicCore
 {
+	PROCESSED Wire::Wire(const TopoDS_Wire& rkOcctWire, const std::string& rkGuid)
+		: Topology(1, rkOcctWire, rkGuid.compare("") == 0 ? GetClassGUID() : rkGuid)
+		, m_occtWire(rkOcctWire)
+	{
+		RegisterFactory(GetClassGUID(), std::make_shared<WireFactory>());
+	}
+
 	void Wire::Edges(const Topology::Ptr& kpHostTopology, std::list<Edge::Ptr>& rEdges) const
 	{
 		if (!IsManifold(nullptr))
@@ -389,14 +396,7 @@ namespace TopologicCore
 		return std::string("Wire");
 	}
 
-	Wire::Wire(const TopoDS_Wire& rkOcctWire, const std::string& rkGuid)
-		: Topology(1, rkOcctWire, rkGuid.compare("") == 0 ? GetClassGUID() : rkGuid)
-		, m_occtWire(rkOcctWire)
-	{
-		RegisterFactory(GetClassGUID(), std::make_shared<WireFactory>());
-	}
-
-	Wire::~Wire()
+	PROCESSED Wire::~Wire()
 	{
 
 	}

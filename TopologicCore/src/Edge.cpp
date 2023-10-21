@@ -42,7 +42,14 @@
 
 namespace TopologicCore
 {
-	void Edge::AdjacentEdges(const Topology::Ptr& kpHostTopology, std::list<Edge::Ptr>& rAdjacentEdges) const
+	PROCESSED Edge::Edge(const TopoDS_Edge& rkOcctEdge, const std::string& rkGuid)
+		: Topology(1, rkOcctEdge, rkGuid.compare("") == 0 ? GetClassGUID() : rkGuid)
+		, m_occtEdge(rkOcctEdge)
+	{
+		RegisterFactory(GetClassGUID(), std::make_shared<EdgeFactory>());
+	}
+
+	PROCESSED void Edge::AdjacentEdges(const Topology::Ptr& kpHostTopology, std::list<Edge::Ptr>& rAdjacentEdges) const
 	{
 		std::list<Vertex::Ptr> vertices;
 		Vertices(kpHostTopology, vertices);
@@ -73,37 +80,37 @@ namespace TopologicCore
 		}
 	}
 
-	Vertex::Ptr Edge::StartVertex() const
+	PROCESSED Vertex::Ptr Edge::StartVertex() const
 	{
 		return std::make_shared<Vertex>(StartVertex(GetOcctEdge()));
 	}
 
-	TopoDS_Vertex Edge::StartVertex(const TopoDS_Edge& rkOcctEdge)
+	PROCESSED TopoDS_Vertex Edge::StartVertex(const TopoDS_Edge& rkOcctEdge)
 	{
 		ShapeAnalysis_Edge occtShapeAnalysisEdge;
 		TopoDS_Vertex occtFirstVertex = occtShapeAnalysisEdge.FirstVertex(rkOcctEdge);
 		return occtFirstVertex;
 	}
 
-	TopoDS_Vertex Edge::EndVertex(const TopoDS_Edge& rkOcctEdge)
+	PROCESSED TopoDS_Vertex Edge::EndVertex(const TopoDS_Edge& rkOcctEdge)
 	{
 		ShapeAnalysis_Edge occtShapeAnalysisEdge;
 		TopoDS_Vertex occtLastVertex = occtShapeAnalysisEdge.LastVertex(rkOcctEdge);
 		return occtLastVertex;
 	}
 
-	std::shared_ptr<Vertex> Edge::EndVertex() const
+	PROCESSED std::shared_ptr<Vertex> Edge::EndVertex() const
 	{
 		return std::make_shared<Vertex>(EndVertex(GetOcctEdge()));
 	}
 
-	void Edge::Vertices(const Topology::Ptr& kpHostTopology, std::list<Vertex::Ptr>& rVertices) const
+	PROCESSED void Edge::Vertices(const Topology::Ptr& kpHostTopology, std::list<Vertex::Ptr>& rVertices) const
 	{
 		rVertices.push_back(StartVertex());
 		rVertices.push_back(EndVertex());
 	}
 
-	void Edge::Wires(const Topology::Ptr& kpHostTopology, std::list<Wire::Ptr>& rWires) const
+	PROCESSED void Edge::Wires(const Topology::Ptr& kpHostTopology, std::list<Wire::Ptr>& rWires) const
 	{
 		if (kpHostTopology)
 		{
@@ -115,7 +122,7 @@ namespace TopologicCore
 		}
 	}
 
-	void Edge::Faces(const Topology::Ptr& kpHostTopology, std::list<Face::Ptr>& rFaces) const
+	PROCESSED void Edge::Faces(const Topology::Ptr& kpHostTopology, std::list<Face::Ptr>& rFaces) const
 	{
 		if (kpHostTopology)
 		{
@@ -127,7 +134,7 @@ namespace TopologicCore
 		}
 	}
 
-	Edge::Ptr Edge::ByCurve(
+	PROCESSED Edge::Ptr Edge::ByCurve(
 		const TColgp_Array1OfPnt &rkOcctPoles,
 		const TColStd_Array1OfReal &rkOcctWeights,
 		const TColStd_Array1OfReal &rkOcctKnots,
@@ -168,7 +175,7 @@ namespace TopologicCore
 		return ByCurve(pOcctBSplineCurve);
 	}
 
-	Edge::Ptr Edge::ByCurve(Handle(Geom_Curve) pOcctCurve, const double rkFirstParameter, const double rkLastParameter)
+	PROCESSED Edge::Ptr Edge::ByCurve(Handle(Geom_Curve) pOcctCurve, const double rkFirstParameter, const double rkLastParameter)
 	{
 		const double kOcctFirstParameter = pOcctCurve->FirstParameter();
 		const double kOcctLastParameter = pOcctCurve->LastParameter();
@@ -190,7 +197,7 @@ namespace TopologicCore
 		return pEdge;
 	}
 
-	Edge::Ptr Edge::ByStartVertexEndVertex(const std::shared_ptr<Vertex>& kpStartVertex, const std::shared_ptr<Vertex>& kpEndVertex, const bool kCopyAttributes)
+	PROCESSED Edge::Ptr Edge::ByStartVertexEndVertex(const std::shared_ptr<Vertex>& kpStartVertex, const std::shared_ptr<Vertex>& kpEndVertex, const bool kCopyAttributes)
 	{
 		if (kpStartVertex == nullptr || kpEndVertex == nullptr)
 		{
@@ -223,7 +230,7 @@ namespace TopologicCore
 		return pCopyEdge;
 	}
 
-	void Edge::SharedVertices(const Edge::Ptr& kpAnotherEdge, std::list<std::shared_ptr<Vertex>>& rSharedVertices) const
+	PROCESSED void Edge::SharedVertices(const Edge::Ptr& kpAnotherEdge, std::list<std::shared_ptr<Vertex>>& rSharedVertices) const
 	{
 		const TopoDS_Shape& rkOcctShape1 = GetOcctShape();
 		TopTools_MapOfShape occtVertices1;
@@ -314,58 +321,60 @@ namespace TopologicCore
 					return false;
 				}
 			}
-			std::list<TopologicCore::Cell::Ptr> cells;
-			for (const Cell::Ptr kpCell : cells)
-			{
-				if (IsManifold(kpCell))
-				{
-					return false;
-				}
-			}
-			std::list<TopologicCore::Shell::Ptr> shells;
-			for (const Shell::Ptr kpShell : shells)
-			{
-				if (IsManifold(kpShell))
-				{
-					return false;
-				}
-			}
-			std::list<TopologicCore::Face::Ptr> faces;
-			for (const Face::Ptr kpFace : faces)
-			{
-				if (IsManifold(kpFace))
-				{
-					return false;
-				}
-			}
-			std::list<TopologicCore::Wire::Ptr> wires;
-			for (const Wire::Ptr kpWire : wires)
-			{
-				if (IsManifold(kpWire))
-				{
-					return false;
-				}
-			}
+
+			// ToDo?: cells, shells, faces, wires are NOT defined here
+			//std::list<TopologicCore::Cell::Ptr> cells;
+			//for (const Cell::Ptr kpCell : cells)
+			//{
+			//	if (IsManifold(kpCell))
+			//	{
+			//		return false;
+			//	}
+			//}
+			//std::list<TopologicCore::Shell::Ptr> shells;
+			//for (const Shell::Ptr kpShell : shells)
+			//{
+			//	if (IsManifold(kpShell))
+			//	{
+			//		return false;
+			//	}
+			//}
+			//std::list<TopologicCore::Face::Ptr> faces;
+			//for (const Face::Ptr kpFace : faces)
+			//{
+			//	if (IsManifold(kpFace))
+			//	{
+			//		return false;
+			//	}
+			//}
+			//std::list<TopologicCore::Wire::Ptr> wires;
+			//for (const Wire::Ptr kpWire : wires)
+			//{
+			//	if (IsManifold(kpWire))
+			//	{
+			//		return false;
+			//	}
+			//}
 		}
 		return true;
 	}
 
-	void Edge::Geometry(std::list<Handle(Geom_Geometry)>& rOcctGeometries) const
+	PROCESSED void Edge::Geometry(std::list<Handle(Geom_Geometry)>& rOcctGeometries) const
 	{
 		rOcctGeometries.push_back(Curve());
 	}
 
-	TopoDS_Shape& Edge::GetOcctShape()
+	PROCESSED TopoDS_Shape& Edge::GetOcctShape()
 	{
 		return GetOcctEdge();
 	}
 
-	const TopoDS_Shape& Edge::GetOcctShape() const
+	PROCESSED const TopoDS_Shape& Edge::GetOcctShape() const
 	{
 		return GetOcctEdge();
 	}
 
-	TopoDS_Edge& Edge::GetOcctEdge()
+	PROCESSED TopoDS_Edge& Edge::GetOcctEdge()
 	{
 		assert(!m_occtEdge.IsNull() && "Edge::m_occtEdge is null.");
 		if (m_occtEdge.IsNull())
@@ -376,7 +385,7 @@ namespace TopologicCore
 		return m_occtEdge;
 	}
 
-	const TopoDS_Edge& Edge::GetOcctEdge() const
+	PROCESSED const TopoDS_Edge& Edge::GetOcctEdge() const
 	{
 		assert(!m_occtEdge.IsNull() && "Edge::m_occtEdge is null.");
 		if (m_occtEdge.IsNull())
@@ -387,7 +396,12 @@ namespace TopologicCore
 		return m_occtEdge;
 	}
 
-	void Edge::SetOcctShape(const TopoDS_Shape& rkOcctShape)
+	PROCESSED void Edge::SetOcctEdge(const TopoDS_Edge& rkOcctEdge)
+	{
+		m_occtEdge = rkOcctEdge;
+	}
+
+	PROCESSED void Edge::SetOcctShape(const TopoDS_Shape& rkOcctShape)
 	{
 		try {
 			SetOcctEdge(TopoDS::Edge(rkOcctShape));
@@ -398,23 +412,18 @@ namespace TopologicCore
 		}
 	}
 
-	void Edge::SetOcctEdge(const TopoDS_Edge& rkOcctEdge)
-	{
-		m_occtEdge = rkOcctEdge;
-	}
-
-	Handle(Geom_Curve) Edge::Curve() const
+	PROCESSED Handle(Geom_Curve) Edge::Curve() const
 	{
 		double firstParameter = 0.0, lastParameter = 0.0;
 		return Curve(firstParameter, lastParameter);
 	}
 
-	Handle(Geom_Curve) Edge::Curve(double& rFirstParameter, double& rLastParameter) const
+	PROCESSED Handle(Geom_Curve) Edge::Curve(double& rFirstParameter, double& rLastParameter) const
 	{
 		return BRep_Tool::Curve(GetOcctEdge(), rFirstParameter, rLastParameter);
 	}
 
-	double Edge::NormalizeParameter(const double kOcctFirstParameter, const double kOcctLastParameter, const double kNonNormalizedParameter)
+	PROCESSED double Edge::NormalizeParameter(const double kOcctFirstParameter, const double kOcctLastParameter, const double kNonNormalizedParameter)
 	{
 		double occtDParameter = kOcctLastParameter - kOcctFirstParameter;
 		if (occtDParameter <= 0.0)
@@ -425,33 +434,33 @@ namespace TopologicCore
 		return (kNonNormalizedParameter - kOcctFirstParameter) / occtDParameter;
 	}
 
-	double Edge::NonNormalizeParameter(const double kOcctFirstParameter, const double kOcctLastParameter, const double kNormalizedParameter)
+	PROCESSED double Edge::NonNormalizeParameter(const double kOcctFirstParameter, const double kOcctLastParameter, const double kNormalizedParameter)
 	{
 		double occtDParameter = kOcctLastParameter - kOcctFirstParameter;
 		return kOcctFirstParameter + kNormalizedParameter * occtDParameter;
 	}
 
-	TopoDS_Edge Edge::OcctShapeFix(const TopoDS_Edge& rkOcctInputEdge)
+	PROCESSED TopoDS_Edge Edge::OcctShapeFix(const TopoDS_Edge& rkOcctInputEdge)
 	{
 		ShapeFix_Shape occtEdgeFix(rkOcctInputEdge);
 		occtEdgeFix.Perform();
 		return TopoDS::Edge(occtEdgeFix.Shape());
 	}
 
-	std::shared_ptr<Vertex> Edge::CenterOfMass() const
+	PROCESSED std::shared_ptr<Vertex> Edge::CenterOfMass() const
 	{
 		TopoDS_Vertex occtCenterOfMass = CenterOfMass(GetOcctEdge());
 		return std::dynamic_pointer_cast<Vertex>(Topology::ByOcctShape(occtCenterOfMass));
 	}
 
-	TopoDS_Vertex Edge::CenterOfMass(const TopoDS_Edge& rkOcctEdge)
+	PROCESSED TopoDS_Vertex Edge::CenterOfMass(const TopoDS_Edge& rkOcctEdge)
 	{
 		GProp_GProps occtShapeProperties;
 		BRepGProp::LinearProperties(rkOcctEdge, occtShapeProperties);
 		return BRepBuilderAPI_MakeVertex(occtShapeProperties.CentreOfMass());
 	}
 
-	std::string Edge::GetTypeAsString() const
+	PROCESSED std::string Edge::GetTypeAsString() const
 	{
 		return std::string("Edge");
 	}
@@ -480,14 +489,7 @@ namespace TopologicCore
 		}
 	}
 
-	Edge::Edge(const TopoDS_Edge& rkOcctEdge, const std::string& rkGuid)
-		: Topology(1, rkOcctEdge, rkGuid.compare("") == 0 ? GetClassGUID() : rkGuid)
-		, m_occtEdge(rkOcctEdge)
-	{
-		RegisterFactory(GetClassGUID(), std::make_shared<EdgeFactory>());
-	}
-
-	Edge::~Edge()
+	PROCESSED Edge::~Edge()
 	{
 
 	}
