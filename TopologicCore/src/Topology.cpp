@@ -3443,7 +3443,7 @@ namespace TopologicCore
 		TopoDS_Shape newShape = occtReshaper->Apply(GetOcctShape());
 	}
 
-	bool Topology::IsSame(const Topology::Ptr& kpTopology) const
+	PROCESSED bool Topology::IsSame(const Topology::Ptr& kpTopology) const
 	{
 		bool isSame = GetOcctShape().IsSame(kpTopology->GetOcctShape());
 		return isSame;

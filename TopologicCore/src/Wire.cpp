@@ -49,7 +49,7 @@ namespace TopologicCore
 		RegisterFactory(GetClassGUID(), std::make_shared<WireFactory>());
 	}
 
-	void Wire::Edges(const Topology::Ptr& kpHostTopology, std::list<Edge::Ptr>& rEdges) const
+	PROCESSED void Wire::Edges(const Topology::Ptr& kpHostTopology, std::list<Edge::Ptr>& rEdges) const
 	{
 		if (!IsManifold(nullptr))
 		{
@@ -153,7 +153,7 @@ namespace TopologicCore
 		}
 	}
 
-	void Wire::Faces(const Topology::Ptr& kpHostTopology, std::list<Face::Ptr>& rFaces) const
+	PROCESSED void Wire::Faces(const Topology::Ptr& kpHostTopology, std::list<Face::Ptr>& rFaces) const
 	{
 		if (kpHostTopology)
 		{
@@ -165,7 +165,7 @@ namespace TopologicCore
 		}
 	}
 
-	bool Wire::IsClosed() const
+	PROCESSED bool Wire::IsClosed() const
 	{
 		BRepCheck_Wire occtCheckWire(TopoDS::Wire(GetOcctShape()));
 		BRepCheck_Status status = occtCheckWire.Closed();
@@ -173,7 +173,7 @@ namespace TopologicCore
 		return isClosed;
 	}
 
-	void Wire::Vertices(const Topology::Ptr& kpHostTopology, std::list<Vertex::Ptr>& rVertices) const
+	PROCESSED void Wire::Vertices(const Topology::Ptr& kpHostTopology, std::list<Vertex::Ptr>& rVertices) const
 	{
 		TopTools_MapOfShape occtVertices;
 		std::list<Edge::Ptr> edges;
@@ -213,7 +213,7 @@ namespace TopologicCore
 	}
 
 	// This method may involve making copies of the edges if they originally do not share vertices.
-	Wire::Ptr Wire::ByEdges(const std::list<Edge::Ptr>& rkEdges, const bool kCopyAttributes)
+	PROCESSED Wire::Ptr Wire::ByEdges(const std::list<Edge::Ptr>& rkEdges, const bool kCopyAttributes)
 	{
 		if (rkEdges.empty())
 		{
@@ -241,7 +241,7 @@ namespace TopologicCore
 		return pCopyWire;
 	}
 
-	TopoDS_Wire Wire::ByOcctEdges(const TopTools_ListOfShape & rkOcctEdges)
+	PROCESSED TopoDS_Wire Wire::ByOcctEdges(const TopTools_ListOfShape & rkOcctEdges)
 	{
 		BRepBuilderAPI_MakeWire occtMakeWire;
 		occtMakeWire.Add(rkOcctEdges);
@@ -258,7 +258,7 @@ namespace TopologicCore
 		}
 	}
 
-	bool Wire::IsManifold(const Topology::Ptr& kpHostTopology) const
+	PROCESSED bool Wire::IsManifold(const Topology::Ptr& kpHostTopology) const
 	{
 		std::list<Vertex::Ptr> vertices;
 		DownwardNavigation<Vertex>(vertices);
@@ -276,7 +276,7 @@ namespace TopologicCore
 		return true;
 	}
 
-	int Wire::NumberOfBranches() const
+	PROCESSED int Wire::NumberOfBranches() const
 	{
 		std::list<Vertex::Ptr> vertices;
 		DownwardNavigation<Vertex>(vertices);
@@ -296,7 +296,7 @@ namespace TopologicCore
 		return numOfBranches;
 	}
 
-	void Wire::Geometry(std::list<Handle(Geom_Geometry)>& rOcctGeometries) const
+	PROCESSED void Wire::Geometry(std::list<Handle(Geom_Geometry)>& rOcctGeometries) const
 	{
 		// Returns a list of curves
 		std::list<Edge::Ptr> edges;
@@ -308,17 +308,17 @@ namespace TopologicCore
 		}
 	}
 
-	TopoDS_Shape& Wire::GetOcctShape()
+	PROCESSED TopoDS_Shape& Wire::GetOcctShape()
 	{
 		return GetOcctWire();
 	}
 
-	const TopoDS_Shape& Wire::GetOcctShape() const
+	PROCESSED const TopoDS_Shape& Wire::GetOcctShape() const
 	{
 		return GetOcctWire();
 	}
 
-	void Wire::SetOcctShape(const TopoDS_Shape & rkOcctShape)
+	PROCESSED void Wire::SetOcctShape(const TopoDS_Shape & rkOcctShape)
 	{
 		try {
 			SetOcctWire(TopoDS::Wire(rkOcctShape));
@@ -329,12 +329,12 @@ namespace TopologicCore
 		}
 	}
 
-	void Wire::SetOcctWire(const TopoDS_Wire & rkOcctWire)
+	PROCESSED void Wire::SetOcctWire(const TopoDS_Wire & rkOcctWire)
 	{
 		m_occtWire = rkOcctWire;
 	}
 
-	TopoDS_Wire& Wire::GetOcctWire()
+	PROCESSED TopoDS_Wire& Wire::GetOcctWire()
 	{
 		assert(!m_occtWire.IsNull() && "Wire::m_occtWire is null.");
 		if (m_occtWire.IsNull())
@@ -345,7 +345,7 @@ namespace TopologicCore
 		return m_occtWire;
 	}
 
-	const TopoDS_Wire& Wire::GetOcctWire() const
+	PROCESSED const TopoDS_Wire& Wire::GetOcctWire() const
 	{
 		assert(!m_occtWire.IsNull()  && "Wire::m_occtWire is null.");
 		if (m_occtWire.IsNull())
@@ -356,7 +356,7 @@ namespace TopologicCore
 		return m_occtWire;
 	}
 
-	void Wire::Throw(const BRepBuilderAPI_MakeWire & rkOcctMakeWire)
+	PROCESSED void Wire::Throw(const BRepBuilderAPI_MakeWire & rkOcctMakeWire)
 	{
 		// The error messages are based on those in the OCCT documentation.
 		// https://www.opencascade.com/doc/occt-7.2.0/refman/html/_b_rep_builder_a_p_i___wire_error_8hxx.html
@@ -376,13 +376,13 @@ namespace TopologicCore
 		}
 	}
 
-	std::shared_ptr<Vertex> Wire::CenterOfMass() const
+	PROCESSED std::shared_ptr<Vertex> Wire::CenterOfMass() const
 	{
 		TopoDS_Vertex occtCenterOfMass = CenterOfMass(GetOcctWire());
 		return std::dynamic_pointer_cast<Vertex>(Topology::ByOcctShape(occtCenterOfMass));
 	}
 
-	TopoDS_Vertex Wire::CenterOfMass(const TopoDS_Wire & rkOcctWire)
+	PROCESSED TopoDS_Vertex Wire::CenterOfMass(const TopoDS_Wire & rkOcctWire)
 	{
 		GProp_GProps occtShapeProperties;
 		BRepGProp::LinearProperties(rkOcctWire, occtShapeProperties);
@@ -391,7 +391,7 @@ namespace TopologicCore
 		return occtFixedCenterOfMass;
 	}
 
-	std::string Wire::GetTypeAsString() const
+	PROCESSED std::string Wire::GetTypeAsString() const
 	{
 		return std::string("Wire");
 	}
