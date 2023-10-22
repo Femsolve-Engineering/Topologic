@@ -3548,7 +3548,7 @@ namespace TopologicCore
 		return GetInstanceGUID(GetOcctShape());
 	}
 
-	void Topology::SetInstanceGUID(const TopoDS_Shape& rkOcctShape, const std::string& rkGuid)
+	PROCESSED void Topology::SetInstanceGUID(const TopoDS_Shape& rkOcctShape, const std::string& rkGuid)
 	{
 		InstanceGUIDManager::GetInstance().Add(rkOcctShape, rkGuid);
 	}

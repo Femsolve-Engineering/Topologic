@@ -58,6 +58,13 @@
 
 namespace TopologicCore
 {
+	Face::Face(const TopoDS_Face& rkOcctFace, const std::string& rkGuid)
+		: Topology(2, rkOcctFace, rkGuid.compare("") == 0 ? GetClassGUID() : rkGuid)
+	{
+		m_occtFace = TopoDS::Face(rkOcctFace);
+		RegisterFactory(GetClassGUID(), std::make_shared<FaceFactory>());
+	}
+
 	void Face::AdjacentFaces(const Topology::Ptr& kpHostTopology, std::list<Face::Ptr>& rFaces) const
 	{
 		// Iterate through the edges and find the incident faces which are not this face.
@@ -539,12 +546,12 @@ namespace TopologicCore
 		}
 	}
 
-	Wire::Ptr Face::ExternalBoundary() const
+	PROCESSED Wire::Ptr Face::ExternalBoundary() const
 	{
 		return std::make_shared<Wire>(ExternalBoundary(GetOcctFace()));
 	}
 
-    TopoDS_Wire Face::ExternalBoundary(const TopoDS_Face & rkOcctFace)
+    PROCESSED TopoDS_Wire Face::ExternalBoundary(const TopoDS_Face & rkOcctFace)
     {
         TopoDS_Wire occtOuterWire = BRepTools::OuterWire(rkOcctFace);
         if (occtOuterWire.IsNull())
@@ -559,7 +566,7 @@ namespace TopologicCore
         return occtOuterWire;
     }
 
-	void Face::InternalBoundaries(std::list<Wire::Ptr>& rInternalBoundaries) const
+	PROCESSED void Face::InternalBoundaries(std::list<Wire::Ptr>& rInternalBoundaries) const
 	{
 		const TopoDS_Face& rkFace = GetOcctFace();
         TopoDS_Wire occtOuterWire = ExternalBoundary(rkFace);
@@ -579,14 +586,14 @@ namespace TopologicCore
 		}
 	}
 
-	void Face::AddInternalBoundary(const std::shared_ptr<Wire>& kpWire)
+	PROCESSED void Face::AddInternalBoundary(const std::shared_ptr<Wire>& kpWire)
 	{
 		std::list<Wire::Ptr> wires;
 		wires.push_back(kpWire);
 		AddInternalBoundaries(wires);
 	}
 
-	void Face::AddInternalBoundaries(const std::list<std::shared_ptr<Wire>>& rkWires)
+	PROCESSED void Face::AddInternalBoundaries(const std::list<std::shared_ptr<Wire>>& rkWires)
 	{
 		if (rkWires.empty())
 		{
@@ -603,7 +610,7 @@ namespace TopologicCore
 		m_occtFace = occtMakeFace;
 	}
 
-	void Face::Triangulate(const double kDeflection, const double kAngularDeflection, std::list<TopologicCore::Face::Ptr>& rTriangles) const
+	PROCESSED void Face::Triangulate(const double kDeflection, const double kAngularDeflection, std::list<TopologicCore::Face::Ptr>& rTriangles) const
 	{
 		const TopoDS_Face& rkOcctFace = GetOcctFace();
 
@@ -643,14 +650,14 @@ namespace TopologicCore
 		}
 	}
 
-	TopoDS_Face Face::OcctShapeFix(const TopoDS_Face & rkOcctInputFace)
+	PROCESSED TopoDS_Face Face::OcctShapeFix(const TopoDS_Face & rkOcctInputFace)
 	{
 		ShapeFix_Face occtShapeFix(rkOcctInputFace);
 		occtShapeFix.Perform();
 		return TopoDS::Face(rkOcctInputFace);
 	}
 
-	bool Face::IsManifold(const Topology::Ptr& kpHostTopology) const
+	PROCESSED bool Face::IsManifold(const Topology::Ptr& kpHostTopology) const
 	{
 		std::list<Cell::Ptr> cells;
 		TopologicUtilities::FaceUtility::AdjacentCells(this, kpHostTopology, cells);
@@ -662,7 +669,7 @@ namespace TopologicCore
 		return false;
 	}
 
-    bool Face::IsManifoldToTopology(const Topology::Ptr& kpHostTopology) const
+    PROCESSED bool Face::IsManifoldToTopology(const Topology::Ptr& kpHostTopology) const
     {
         std::list<Cell::Ptr> cells;
         if (kpHostTopology == nullptr)
@@ -683,22 +690,22 @@ namespace TopologicCore
         return false;
     }
 
-	void Face::Geometry(std::list<Handle(Geom_Geometry)>& rOcctGeometries) const
+	PROCESSED void Face::Geometry(std::list<Handle(Geom_Geometry)>& rOcctGeometries) const
 	{
 		rOcctGeometries.push_back(Surface());
 	}
 
-	TopoDS_Shape& Face::GetOcctShape()
+	PROCESSED TopoDS_Shape& Face::GetOcctShape()
 	{
 		return GetOcctFace();
 	}
 
-	const TopoDS_Shape& Face::GetOcctShape() const
+	PROCESSED const TopoDS_Shape& Face::GetOcctShape() const
 	{
 		return GetOcctFace();
 	}
 
-	TopoDS_Face& Face::GetOcctFace()
+	PROCESSED TopoDS_Face& Face::GetOcctFace()
 	{
 		assert(!m_occtFace.IsNull() && "Face::m_occtFace is null.");
 		if (m_occtFace.IsNull())
@@ -709,7 +716,7 @@ namespace TopologicCore
 		return m_occtFace;
 	}
 
-	const TopoDS_Face& Face::GetOcctFace() const
+	PROCESSED const TopoDS_Face& Face::GetOcctFace() const
 	{
 		assert(!m_occtFace.IsNull() && "Face::m_occtFace is null.");
 		if (m_occtFace.IsNull())
@@ -720,40 +727,23 @@ namespace TopologicCore
 		return m_occtFace;
 	}
 
-	void Face::SetOcctShape(const TopoDS_Shape & rkOcctShape)
+	PROCESSED void Face::SetOcctShape(const TopoDS_Shape & rkOcctShape)
 	{
 		SetOcctFace(TopoDS::Face(rkOcctShape));
 	}
 
-	void Face::SetOcctFace(const TopoDS_Face & rkOcctFace)
+	PROCESSED void Face::SetOcctFace(const TopoDS_Face & rkOcctFace)
 	{
 		m_occtFace = rkOcctFace;
 	}
 
-	Face::Face(const TopoDS_Face& rkOcctFace, const std::string& rkGuid)
-		: Topology(2, rkOcctFace, rkGuid.compare("") == 0 ? GetClassGUID() : rkGuid)
-	{
-		m_occtFace = TopoDS::Face(rkOcctFace);
-		RegisterFactory(GetClassGUID(), std::make_shared<FaceFactory>());
-	}
-
-	Face::~Face()
-	{
-
-	}
-
-	Handle(Geom_Surface) Face::Surface() const
+	PROCESSED Handle(Geom_Surface) Face::Surface() const
 	{
 		TopoDS_Face occtFace = GetOcctFace();
 		return BRep_Tool::Surface(occtFace);
 	}
 
-	std::string Face::GetTypeAsString() const
-	{
-		return std::string("Face");
-	}
-
-	void Face::Throw(const BRepBuilderAPI_MakeFace& rkOcctMakeFace)
+	PROCESSED void Face::Throw(const BRepBuilderAPI_MakeFace& rkOcctMakeFace)
 	{
 		// The error messages are based on those in the OCCT documentation.
 		// https://www.opencascade.com/doc/occt-7.2.0/refman/html/_b_rep_builder_a_p_i___face_error_8hxx.html#ac7a498a52546f7535a3f73f6bab1599a
@@ -774,5 +764,15 @@ namespace TopologicCore
 
 		//default: // i.e. BRepBuilderAPI_FaceDone, do nothing
 		}
+	}
+
+	PROCESSED std::string Face::GetTypeAsString() const
+	{
+		return std::string("Face");
+	}
+
+	PROCESSED Face::~Face()
+	{
+
 	}
 }

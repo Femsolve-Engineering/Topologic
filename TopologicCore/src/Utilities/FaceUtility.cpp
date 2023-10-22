@@ -433,7 +433,10 @@ namespace TopologicUtilities
         AdjacentCells(kpFace.get(), kpParentTopology, rCoreAdjacentCells);
 	}
 
-    void FaceUtility::AdjacentCells(TopologicCore::Face const * const pkpFace, const TopologicCore::Topology::Ptr & kpParentTopology, std::list<TopologicCore::Cell::Ptr>& rCoreAdjacentCells)
+    void FaceUtility::AdjacentCells(
+		TopologicCore::Face const * const pkpFace, 
+		const TopologicCore::Topology::Ptr & kpParentTopology, 
+		std::list<TopologicCore::Cell::Ptr>& rCoreAdjacentCells)
     {
         std::list<TopologicCore::Topology::Ptr> coreAdjacentTopologies;
         pkpFace->UpwardNavigation(kpParentTopology->GetOcctShape(), TopologicCore::Cell::Type(), coreAdjacentTopologies);
