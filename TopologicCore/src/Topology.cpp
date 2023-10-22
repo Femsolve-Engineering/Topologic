@@ -751,7 +751,9 @@ namespace TopologicCore
 		ContextManager::GetInstance().Add(GetOcctShape(), rkContext);
 
 		// 2. Register to ContentManager
-		ContentManager::GetInstance().Add(rkContext->Topology()->GetOcctShape(), Topology::ByOcctShape(GetOcctShape(), GetInstanceGUID()));
+		ContentManager::GetInstance().Add(
+			rkContext->Topology()->GetOcctShape(), 
+			Topology::ByOcctShape(GetOcctShape(), GetInstanceGUID()));
 	}
 
 	Topology::Ptr Topology::AddContexts(const std::list<std::shared_ptr<Context>>& rkContexts)
@@ -3228,7 +3230,11 @@ namespace TopologicCore
 	bool Topology::IsContainerType(const TopoDS_Shape& rkOcctShape)
 	{
 		TopAbs_ShapeEnum occtShapeType = rkOcctShape.ShapeType();
-		if (occtShapeType == TopAbs_WIRE || occtShapeType == TopAbs_SHELL || occtShapeType == TopAbs_COMPSOLID || occtShapeType == TopAbs_COMPOUND)
+		if (
+				occtShapeType == TopAbs_WIRE 
+			||	occtShapeType == TopAbs_SHELL 
+			||	occtShapeType == TopAbs_COMPSOLID 
+			||	occtShapeType == TopAbs_COMPOUND)
 		{
 			return true;
 		}
