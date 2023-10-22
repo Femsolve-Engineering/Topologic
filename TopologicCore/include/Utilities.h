@@ -32,6 +32,7 @@
 
 #if _DEBUG
 #define PROCESSED
+#define IGNORED_BECAUSE_NO_REFERENCES
 #endif
 
 namespace TopologicCore {

@@ -58,19 +58,23 @@
 
 namespace TopologicCore
 {
-	Face::Face(const TopoDS_Face& rkOcctFace, const std::string& rkGuid)
+	PROCESSED Face::Face(const TopoDS_Face& rkOcctFace, const std::string& rkGuid)
 		: Topology(2, rkOcctFace, rkGuid.compare("") == 0 ? GetClassGUID() : rkGuid)
 	{
 		m_occtFace = TopoDS::Face(rkOcctFace);
 		RegisterFactory(GetClassGUID(), std::make_shared<FaceFactory>());
 	}
 
-	void Face::AdjacentFaces(const Topology::Ptr& kpHostTopology, std::list<Face::Ptr>& rFaces) const
+	PROCESSED void Face::AdjacentFaces(const Topology::Ptr& kpHostTopology, std::list<Face::Ptr>& rFaces) const
 	{
 		// Iterate through the edges and find the incident faces which are not this face.
 		TopTools_IndexedDataMapOfShapeListOfShape occtEdgeFaceMap;
 		//TopExp::MapShapesAndUniqueAncestors(GlobalCluster::GetInstance().GetOcctCompound(), TopAbs_EDGE, TopAbs_FACE, occtEdgeFaceMap);
-		TopExp::MapShapesAndUniqueAncestors(kpHostTopology->GetOcctShape(), TopAbs_EDGE, TopAbs_FACE, occtEdgeFaceMap);
+		TopExp::MapShapesAndUniqueAncestors(
+			kpHostTopology->GetOcctShape(), 
+			TopAbs_EDGE, 
+			TopAbs_FACE, 
+			occtEdgeFaceMap);
 
 		// Find the constituent faces
 		TopTools_MapOfShape occtEdges;
@@ -112,7 +116,7 @@ namespace TopologicCore
 		}
 	}
 
-	void Face::Cells(const Topology::Ptr& kpHostTopology, std::list<Cell::Ptr>& rCells) const
+	PROCESSED void Face::Cells(const Topology::Ptr& kpHostTopology, std::list<Cell::Ptr>& rCells) const
 	{
 		if (kpHostTopology)
 		{
@@ -124,12 +128,7 @@ namespace TopologicCore
 		}
 	}
 
-	void Face::Edges(const Topology::Ptr& kpHostTopology, std::list<Edge::Ptr>& rEdges) const
-	{
-		DownwardNavigation(rEdges);
-	}
-
-	void Face::Shells(const Topology::Ptr& kpHostTopology, std::list<Shell::Ptr>& rShells) const
+	PROCESSED void Face::Shells(const Topology::Ptr& kpHostTopology, std::list<Shell::Ptr>& rShells) const
 	{
 		if (kpHostTopology)
 		{
@@ -141,23 +140,28 @@ namespace TopologicCore
 		}
 	}
 
-	void Face::Vertices(const Topology::Ptr& kpHostTopology, std::list<Vertex::Ptr>& rVertices) const
+	PROCESSED void Face::Vertices(const Topology::Ptr& kpHostTopology, std::list<Vertex::Ptr>& rVertices) const
 	{
 		DownwardNavigation(rVertices);
 	}
 
-	void Face::Wires(const Topology::Ptr& kpHostTopology, std::list<Wire::Ptr>& rWires) const
+	PROCESSED void Face::Edges(const Topology::Ptr& kpHostTopology, std::list<Edge::Ptr>& rEdges) const
+	{
+		DownwardNavigation(rEdges);
+	}
+
+	PROCESSED void Face::Wires(const Topology::Ptr& kpHostTopology, std::list<Wire::Ptr>& rWires) const
 	{
 		DownwardNavigation(rWires);
 	}
 
-	Vertex::Ptr Face::CenterOfMass() const
+	PROCESSED Vertex::Ptr Face::CenterOfMass() const
 	{
 		TopoDS_Vertex occtCenterOfMass = CenterOfMass(GetOcctFace());
 		return std::dynamic_pointer_cast<Vertex>(Topology::ByOcctShape(occtCenterOfMass));
 	}
 
-	TopoDS_Vertex Face::CenterOfMass(const TopoDS_Face & rkOcctFace)
+	PROCESSED TopoDS_Vertex Face::CenterOfMass(const TopoDS_Face & rkOcctFace)
 	{
 		GProp_GProps occtShapeProperties;
 		//ShapeFix_Face occtShapeFix(rkOcctFace);
@@ -166,21 +170,24 @@ namespace TopologicCore
 		return BRepBuilderAPI_MakeVertex(occtShapeProperties.CentreOfMass());
 	}
 
-	Face::Ptr Face::ByExternalBoundary(const Wire::Ptr& kpExternalBoundary, const bool kCopyAttributes)
+	PROCESSED Face::Ptr Face::ByExternalBoundary(const Wire::Ptr& kpExternalBoundary, const bool kCopyAttributes)
 	{
 		std::list<Wire::Ptr> internalBoundaries;
 		Face::Ptr face = ByExternalInternalBoundaries(kpExternalBoundary, internalBoundaries);
 		if (kCopyAttributes)
 		{
-			AttributeManager::GetInstance().DeepCopyAttributes(kpExternalBoundary->GetOcctWire(), face->GetOcctFace());
+			AttributeManager::GetInstance().DeepCopyAttributes(
+				kpExternalBoundary->GetOcctWire(), 
+				face->GetOcctFace());
 		}
 
 		return face;
 	}
 
-	Face::Ptr Face::ByExternalInternalBoundaries(
+	PROCESSED Face::Ptr Face::ByExternalInternalBoundaries(
 		const Wire::Ptr& pkExternalBoundary,
-		const std::list<Wire::Ptr>& rkInternalBoundaries, const bool kCopyAttributes)
+		const std::list<Wire::Ptr>& rkInternalBoundaries, 
+		const bool kCopyAttributes)
 	{
         if (!pkExternalBoundary->IsClosed())
         {
@@ -244,7 +251,9 @@ namespace TopologicCore
 		std::list<Topology::Ptr> wiresAsTopologies;
 		if (kCopyAttributes)
 		{
-			AttributeManager::GetInstance().DeepCopyAttributes(pkExternalBoundary->GetOcctWire(), pCopyFace->GetOcctFace());
+			AttributeManager::GetInstance().DeepCopyAttributes(
+				pkExternalBoundary->GetOcctWire(), 
+				pCopyFace->GetOcctFace());
 		}
 		wiresAsTopologies.push_back(pkExternalBoundary);
 		for (const Wire::Ptr& kpInternalBoundary : rkInternalBoundaries)
@@ -252,7 +261,9 @@ namespace TopologicCore
 			wiresAsTopologies.push_back(kpInternalBoundary);
 			if (kCopyAttributes)
 			{
-				AttributeManager::GetInstance().DeepCopyAttributes(kpInternalBoundary->GetOcctWire(), pCopyFace->GetOcctFace());
+				AttributeManager::GetInstance().DeepCopyAttributes(
+					kpInternalBoundary->GetOcctWire(), 
+					pCopyFace->GetOcctFace());
 			}
 		}
 		if (kCopyAttributes)
@@ -264,7 +275,7 @@ namespace TopologicCore
 		return pCopyFace;
 	}
 
-	Face::Ptr Face::ByEdges(const std::list<Edge::Ptr>& rkEdges, const bool kCopyAttributes)
+	PROCESSED Face::Ptr Face::ByEdges(const std::list<Edge::Ptr>& rkEdges, const bool kCopyAttributes)
 	{
 		if (rkEdges.size() < 3)
 		{
@@ -279,7 +290,9 @@ namespace TopologicCore
 			edgesAsTopologies.push_back(kpEdge);
 			if (kCopyAttributes)
 			{
-				AttributeManager::GetInstance().DeepCopyAttributes(kpEdge->GetOcctEdge(), pFace->GetOcctFace());
+				AttributeManager::GetInstance().DeepCopyAttributes(
+					kpEdge->GetOcctEdge(), 
+					pFace->GetOcctFace());
 			}
 		}
 		pFace->DeepCopyAttributesFrom(edgesAsTopologies);
@@ -287,7 +300,7 @@ namespace TopologicCore
 		return pFace;
 	}
 
-	Face::Ptr Face::BySurface(Handle(Geom_Surface) pOcctSurface)
+	PROCESSED Face::Ptr Face::BySurface(Handle(Geom_Surface) pOcctSurface)
 	{
 		BRepBuilderAPI_MakeFace occtMakeFace;
 		try {
@@ -304,7 +317,7 @@ namespace TopologicCore
 		return pFace;
 	}
 
-	Face::Ptr Face::BySurface(
+	IGNORED_BECAUSE_NO_REFERENCES Face::Ptr Face::BySurface(
 		const TColgp_Array2OfPnt& rkOcctPoles,
 		const TColStd_Array2OfReal& rkOcctWeights,
 		const TColStd_Array1OfReal& rkOcctUKnots,
@@ -478,7 +491,7 @@ namespace TopologicCore
 		return pFace;
 	}
 
-	void Face::SharedEdges(const Face::Ptr& kpAnotherFace, std::list<Edge::Ptr>& rEdges) const
+	PROCESSED void Face::SharedEdges(const Face::Ptr& kpAnotherFace, std::list<Edge::Ptr>& rEdges) const
 	{
 		const TopoDS_Shape& rkOcctShape1 = GetOcctShape();
 		TopTools_ListOfShape occtEdges1;
@@ -519,7 +532,7 @@ namespace TopologicCore
 		}
 	}
 
-	void Face::SharedVertices(const Face::Ptr& kpAnotherFace, std::list<Vertex::Ptr>& rVertices) const
+	PROCESSED void Face::SharedVertices(const Face::Ptr& kpAnotherFace, std::list<Vertex::Ptr>& rVertices) const
 	{
 		const TopoDS_Shape& rkOcctShape1 = GetOcctShape();
 		TopTools_MapOfShape occtVertices1;

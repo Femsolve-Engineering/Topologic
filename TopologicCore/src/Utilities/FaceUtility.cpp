@@ -54,12 +54,12 @@
 
 namespace TopologicUtilities
 {
-	double FaceUtility::Area(const TopologicCore::Face::Ptr& kpFace)
+	PROCESSED double FaceUtility::Area(const TopologicCore::Face::Ptr& kpFace)
 	{
 		return Area(kpFace->GetOcctFace());
 	}
 
-	double FaceUtility::Area(const TopoDS_Face & rkOcctFace)
+	PROCESSED double FaceUtility::Area(const TopoDS_Face & rkOcctFace)
 	{
 		GProp_GProps occtShapeProperties;
 		BRepGProp::SurfaceProperties(rkOcctFace, occtShapeProperties);
