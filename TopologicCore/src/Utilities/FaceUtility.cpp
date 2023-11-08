@@ -115,7 +115,8 @@ namespace TopologicUtilities
 		}
 	}
 
-	void FaceUtility::ParametersAtVertex(const TopologicCore::Face::Ptr& kpFace, const TopologicCore::Vertex::Ptr& kpVertex, double& rU, double& rV)
+	PROCESSED void FaceUtility::ParametersAtVertex(
+		const TopologicCore::Face::Ptr& kpFace, const TopologicCore::Vertex::Ptr& kpVertex, double& rU, double& rV)
 	{
 		Handle(Geom_Surface) pOcctSurface = kpFace->Surface();
 		ShapeAnalysis_Surface occtSurfaceAnalysis(pOcctSurface);
@@ -128,7 +129,7 @@ namespace TopologicUtilities
 		NormalizeUV(kpFace, occtU, occtV, rU, rV);
 	}
 
-	TopologicCore::Vertex::Ptr FaceUtility::VertexAtParameters(const TopologicCore::Face::Ptr& kpFace, const double kU, const double kV)
+	PROCESSED TopologicCore::Vertex::Ptr FaceUtility::VertexAtParameters(const TopologicCore::Face::Ptr& kpFace, const double kU, const double kV)
 	{
 		Handle(Geom_Surface) pOcctSurface = kpFace->Surface();
 		double occtU = 0.0, occtV = 0.0;
@@ -147,7 +148,7 @@ namespace TopologicUtilities
 		return TopologicCore::Vertex::ByPoint(new Geom_CartesianPoint(occtPoint));
 	}
 
-	gp_Dir FaceUtility::NormalAtParameters(const TopologicCore::Face::Ptr& kpFace, const double kU, const double kV)
+	PROCESSED gp_Dir FaceUtility::NormalAtParameters(const TopologicCore::Face::Ptr& kpFace, const double kU, const double kV)
 	{
 		Handle(Geom_Surface) pOcctSurface = kpFace->Surface();
 		double occtU = 0.0, occtV = 0.0;
@@ -161,7 +162,6 @@ namespace TopologicUtilities
 			occtNormal.Reverse();
 		}
 		return occtNormal;
-
 	}
 
 	void FaceUtility::UVSamplePoints(
@@ -402,7 +402,7 @@ namespace TopologicUtilities
 		rNormalizedV = (kNonNormalizedV - occtVMin) / occtDV;
 	}
 
-	void FaceUtility::NonNormalizeUV(const TopologicCore::Face::Ptr& kpFace, const double kNormalizedU, const double kNormalizedV, double& rNonNormalizedU, double& rNonNormalizedV)
+	PROCESSED void FaceUtility::NonNormalizeUV(const TopologicCore::Face::Ptr& kpFace, const double kNormalizedU, const double kNormalizedV, double& rNonNormalizedU, double& rNonNormalizedV)
 	{
 		double occtUMin = 0.0, occtUMax = 0.0, occtVMin = 0.0, occtVMax = 0.0;
 		//ShapeFix_Face occtShapeFix(kpFace->GetOcctFace());
@@ -496,7 +496,8 @@ namespace TopologicUtilities
 
 	// https://www.opencascade.com/content/how-find-if-point-belongs-face
 	// https://www.opencascade.com/doc/occt-7.2.0/refman/html/class_b_rep_class___face_classifier.html
-	bool FaceUtility::IsInside(const TopologicCore::Face::Ptr kpFace, const TopologicCore::Vertex::Ptr & kpVertex, const double kTolerance)
+	bool FaceUtility::IsInside(
+		const TopologicCore::Face::Ptr kpFace, const TopologicCore::Vertex::Ptr & kpVertex, const double kTolerance)
 	{
 		double u = 0.0, v = 0.0;
 		ParametersAtVertex(kpFace, kpVertex, u, v);

@@ -34,7 +34,9 @@
 
 namespace TopologicUtilities
 {
-	TopologicCore::Topology::Ptr TopologyUtility::Translate(const TopologicCore::Topology::Ptr& kpTopology, const double x, const double y, const double z)
+	PROCESSED TopologicCore::Topology::Ptr TopologyUtility::Translate(
+		const TopologicCore::Topology::Ptr& kpTopology, 
+		const double x, const double y, const double z)
 	{
 		gp_Trsf transformation;
 		transformation.SetTranslation(gp_Vec(x, y, z));
