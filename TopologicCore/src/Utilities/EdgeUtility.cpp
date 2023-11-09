@@ -199,14 +199,17 @@ namespace TopologicUtilities
 			);
 	}
 
-	double EdgeUtility::ParameterAtPoint(const TopologicCore::Edge::Ptr& kpEdge, const TopologicCore::Vertex::Ptr& kpVertex)
+	PROCESSED double EdgeUtility::ParameterAtPoint(
+		const TopologicCore::Edge::Ptr& kpEdge, 
+		const TopologicCore::Vertex::Ptr& kpVertex)
 	{
 		double u0 = 0.0, u1 = 0.0;
 		Handle(Geom_Curve) pOcctCurve = kpEdge->Curve(u0, u1);
 		Handle(Geom_Point) pOcctPoint = kpVertex->Point();
 
 		double occtParameter = 0.0;
-		bool isOnCurve = GeomLib_Tool::Parameter(pOcctCurve, pOcctPoint->Pnt(), Precision::Confusion(), occtParameter);
+		bool isOnCurve = GeomLib_Tool::Parameter(
+			pOcctCurve, pOcctPoint->Pnt(), Precision::Confusion(), occtParameter);
 		if (!isOnCurve)
 		{
 			throw std::runtime_error("Point not on curve");
@@ -216,7 +219,8 @@ namespace TopologicUtilities
 		return kpEdge->NormalizeParameter(u0, u1, occtParameter);
 	}
 
-	TopologicCore::Vertex::Ptr EdgeUtility::PointAtParameter(const TopologicCore::Edge::Ptr& kpEdge, const double kParameter)
+	PROCESSED TopologicCore::Vertex::Ptr EdgeUtility::PointAtParameter(
+		const TopologicCore::Edge::Ptr& kpEdge, const double kParameter)
 	{
 		double u0 = 0.0, u1 = 0.0;
 		Handle(Geom_Curve) pOcctCurve = kpEdge->Curve(u0, u1);

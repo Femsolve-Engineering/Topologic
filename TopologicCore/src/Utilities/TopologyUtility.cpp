@@ -74,7 +74,7 @@ namespace TopologicUtilities
 		return pCoreTransformedTopology;
 	}
 
-	TopologicCore::Topology::Ptr TopologyUtility::Rotate(const TopologicCore::Topology::Ptr & kpTopology,
+	PROCESSED TopologicCore::Topology::Ptr TopologyUtility::Rotate(const TopologicCore::Topology::Ptr & kpTopology,
 		const TopologicCore::Vertex::Ptr& kpOrigin,
 		const double kDirectionX, const double kDirectionY, const double kDirectionZ,
 		const double kDegree)
@@ -117,7 +117,12 @@ namespace TopologicUtilities
 		return pCoreTransformedTopology;
 	}
 
-	TopologicCore::Topology::Ptr TopologyUtility::Transform(const TopologicCore::Topology::Ptr & kpTopology, const double kTranslationX, const double kTranslationY, const double kTranslationZ, const double kRotation11, const double kRotation12, const double kRotation13, const double kRotation21, const double kRotation22, const double kRotation23, const double kRotation31, const double kRotation32, const double kRotation33)
+	TopologicCore::Topology::Ptr TopologyUtility::Transform(
+		const TopologicCore::Topology::Ptr & kpTopology, 
+		const double kTranslationX, const double kTranslationY, const double kTranslationZ,
+		const double kRotation11, const double kRotation12, const double kRotation13, 
+		const double kRotation21, const double kRotation22, const double kRotation23, 
+		const double kRotation31, const double kRotation32, const double kRotation33)
 	{
 		gp_GTrsf gTransformation(
 			gp_Mat(kRotation11, kRotation12, kRotation13, kRotation21, kRotation22, kRotation23, kRotation31, kRotation32, kRotation33),
@@ -161,7 +166,7 @@ namespace TopologicUtilities
 		return pCoreTransformedTopology;
 	}
 
-	TopologicCore::Topology::Ptr TopologyUtility::Scale(
+	PROCESSED TopologicCore::Topology::Ptr TopologyUtility::Scale(
 		const TopologicCore::Topology::Ptr & kpTopology, const TopologicCore::Vertex::Ptr & kpOrigin,
 		const double kXFactor, const double kYFactor, const double kZFactor)
 	{
@@ -214,12 +219,12 @@ namespace TopologicUtilities
 		return pCoreTransformedTopology;
 	}
 
-	double TopologyUtility::DegreeToRadian(const double kDegree)
+	PROCESSED double TopologyUtility::DegreeToRadian(const double kDegree)
 	{
 		return kDegree * M_PI / 180.0;
 	}
 
-	double TopologyUtility::RadianToDegree(const double kRadian)
+	PROCESSED double TopologyUtility::RadianToDegree(const double kRadian)
 	{
 		return kRadian * 180.0 / M_PI;
 	}
