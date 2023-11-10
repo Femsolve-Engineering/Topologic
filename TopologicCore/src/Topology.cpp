@@ -3257,7 +3257,10 @@ namespace TopologicCore
 	}
 // #endif
 
-	void Topology::UpwardNavigation(const TopoDS_Shape & rkOcctHostTopology, const int kTopologyType, std::list<std::shared_ptr<Topology>>& rAncestors) const
+	PROCESSED void Topology::UpwardNavigation(
+		const TopoDS_Shape & rkOcctHostTopology, 
+		const int kTopologyType, 
+		std::list<std::shared_ptr<Topology>>& rAncestors) const
 	{
 		switch (kTopologyType)
 		{

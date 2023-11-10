@@ -44,7 +44,10 @@ namespace TopologicUtilities
 		AdjacentEdges(kpVertex, kpParentTopology.get(), rCoreAdjacentEdges);
 	}
 
-	void VertexUtility::AdjacentEdges(const TopologicCore::Vertex::Ptr & kpVertex, TopologicCore::Topology const * const kpkParentTopology, std::list<TopologicCore::Edge::Ptr>& rCoreAdjacentEdges)
+	void VertexUtility::AdjacentEdges(
+		const TopologicCore::Vertex::Ptr & kpVertex, 
+		TopologicCore::Topology const * const kpkParentTopology, 
+		std::list<TopologicCore::Edge::Ptr>& rCoreAdjacentEdges)
 	{
 		std::list<TopologicCore::Topology::Ptr> coreAdjacentTopologies;
 		kpVertex->UpwardNavigation(kpkParentTopology->GetOcctShape(), TopologicCore::Edge::Type(), coreAdjacentTopologies);

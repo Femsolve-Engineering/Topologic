@@ -339,7 +339,10 @@ namespace TopologicUtilities
 		return std::make_shared<TopologicCore::Face>(TopoDS::Face(occtFinalFace));
 	}
 
-	TopologicCore::Face::Ptr FaceUtility::TrimByWire(const TopologicCore::Face::Ptr& kpFace, const TopologicCore::Wire::Ptr& kpWire, const bool kReverseWire)
+	TopologicCore::Face::Ptr FaceUtility::TrimByWire(
+		const TopologicCore::Face::Ptr& kpFace, 
+		const TopologicCore::Wire::Ptr& kpWire, 
+		const bool kReverseWire)
 	{
 		TopologicCore::Face::Ptr pCopyInputFace = std::dynamic_pointer_cast<TopologicCore::Face>(kpFace->ShallowCopy());
 		TopologicCore::Wire::Ptr pCopyInputWire = std::dynamic_pointer_cast<TopologicCore::Wire>(kpWire->ShallowCopy());
